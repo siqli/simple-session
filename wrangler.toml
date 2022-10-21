@@ -1,0 +1,11 @@
+name = "session"
+main = "./worker.js"
+compatibility_date = "2022-10-21"
+kv_namespaces = [ 
+  { binding = "SESSION_STORE", id = "", preview_id = "" }
+]
+[vars]
+  # seconds from now see: https://siq.li/owy
+  EXPIRATION_TTL = 300
+  # Better to set SESSION_KEY as a secret (See: https://siq.li/sLu)
+  # SESSION_KEY = "secret-key-value"

@@ -1,0 +1,17 @@
+{
+  "name": "siqli-simple-session",
+  "version": "1.0.0",
+  "description": "Use Cloudflare Workers & Workers KV to generate/store/verify session ID/token.",
+  "main": "worker.js",
+  "keywords": [
+    "cloudflare",
+    "cloudflare-workers",
+    "workers-kv",
+    "session"
+  ],
+  "author": "Siqli (https://siq.li)",
+  "contributors": [{
+    "name": "Jasiq Li"
+  }],
+  "license": "Jam"
+}
