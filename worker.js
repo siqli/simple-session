@@ -45,12 +45,32 @@ async function createSession(req, env) {
     })
 
     // Return
-    return new Response(JSON.stringify([ sessionID, sessionToken ]), { status: 201, headers })
+    return new Response(
+      JSON.stringify(
+        [ sessionID, sessionToken ]
+      ), {
+        status: 201,    // 201 Created
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json;charset=utf-8',
+        }
+      }
+    )
 
   } catch(e) {
 
     // Return error
-    return new Response(JSON.stringify({err: "Error saving session ID/token."}), { status: 500, headers })
+    return new Response(
+      JSON.stringify({
+        err: e.message || e.toString()
+      }), {
+        status: 500,    // 500 Internal Server Error
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json;charset=utf-8',
+        }
+      }
+    )
   }
 }
 
@@ -72,14 +92,41 @@ async function verifySession(payload, env) {
 
     // Verfied
     if (storedValue === sessionToken)
-      return new Response(Boolean(true), { headers })
+      return new Response("OK", {
+        status: 200,    // OK
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json;charset=utf-8',
+        }
+      })
 
     // Not verified (invalid/expired)
-    return new Response(Boolean(false), { headers })
+    return new Response(
+      JSON.stringify({
+        // If sessionID isn't found, storedValue is `null`
+        err: `Session ${storedValue === null ? "ID" : "token"} invalid`
+      }), {
+        status: 401,      // 401 Unauthorised
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json;charset=utf-8',
+        }
+      }
+    )
   } catch(e) {
 
-    // Likely 
-    return new Response(e.message || e.toString, { status: 500 })
+    // Likely ???
+    return new Response(
+      JSON.stringify({
+        err: e.message || e.toString
+      }), {
+        status: 500,    // 500 Internal Server Error
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json;charset=utf-8',
+        }
+      }
+    )
   }
 }
 
@@ -108,7 +155,17 @@ async function handleRequest(req, env) {
     return await createSession(req, env)
 
   // Not valid
-  return new Response("Bad Request", { status: 400, headers })
+  return new Response(
+    JSON.stringify({
+      err: "Bad Request"
+    }), {
+      status: 400,    // 400 Bad Request
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json;charset=utf-8',
+      }
+    }
+  )
 
 }
 
