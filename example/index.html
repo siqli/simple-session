@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Simple Session Example</title>
+  </head>
+  <body>
+
+
+    <script>
+      const sessionURL = 'http://localhost:8787'
+
+      // Get and set new session cookie
+      const setSessionCookie = async () => {
+        fetch(`${sessionURL}/new`)
+        .then(res => {
+          if (res.status === 201){
+            return res.json()
+          }
+          else {
+            const { err } = res.json()
+            throw new Error(err)
+          }
+        })
+        .then(session => {
+          let [ sessionId, sessionToken ] = session
+          document.cookie = `sessionId=${sessionId}; SameSite=Strict; max-age=3000`
+          document.cookie = `${sessionId}=${sessionToken}; SameSite=Strict; max-age=3000`
+        })
+        .catch(err => console.log(err))
+      }
+
+      const deleteSessionCookie = (sessionId) => {
+        document.cookie = `sessionId=""; max-age=0`
+        document.cookie = `${sessionId}=""; max-age=0`
+      }
+
+      // Read session ID and valid from cookies
+      const readSessionCookies = () => {
+        const obj = {}
+        const cookies = document.cookie.split('; ').map(e => {
+          let parts = e.split('=')
+          obj[parts[0]] = parts[1]
+        });
+        // console.log("Cookies: ", obj)
+        let sessionId = obj['sessionId'] || undefined
+        // console.log("Session ID: ", sessionId)
+        let sessionToken = obj[`${sessionId}`] || undefined
+        // console.log("Session Value: ", sessionToken)
+        return [
+          sessionId,
+          sessionToken
+        ]
+      }
+
+      const [sessionId, sessionToken] = readSessionCookies()
+
+      // Check session cookie/value is valid
+      if (sessionId !== undefined && sessionToken !== undefined) {
+        fetch(`${sessionURL}/verify/${sessionId}/${sessionToken}`)
+          .then(res => {
+            if (res.status !== 200) {
+              const { err } = res.json()
+              if (res.status === 401) {
+                deleteSessionCookie(sessionId)
+              }
+              throw new Error(err)
+            } else {
+              console.log("Session valid")
+              return true
+            }
+          })
+          .catch(err => console.log(err))
+      }
+      // No cookie, to make one
+      else {
+        // console.log("Setting session cookie")
+        setSessionCookie()
+      }
+
+    </script>
+
+  </body>
+</html>
