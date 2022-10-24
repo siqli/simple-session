@@ -1,9 +1,11 @@
-name = "session"
+name = "simple-session"
 main = "./worker.js"
-compatibility_date = "2022-10-21"
+compatibility_date = "2022-10-22"
+workers_dev = false
 kv_namespaces = [ 
   { binding = "SESSION_STORE", id = "", preview_id = "" }
 ]
+
 [vars]
   # seconds from now see: https://siq.li/owy
   EXPIRATION_TTL = 300

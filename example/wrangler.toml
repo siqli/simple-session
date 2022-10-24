@@ -1,0 +1,6 @@
+name = "sstest"
+main = "./worker.js"
+compatibility_date = "2022-10-22"
+services = [
+  { binding = "SESSION", service = "simple-session", environment = "production" }
+]

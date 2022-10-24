@@ -1,37 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Simple Session Example</title>
+    <title>Simple Session Test</title>
   </head>
   <body>
 
+    <h1>Simple Session Test</h1>
+    <p>Check console/storage</p>
 
     <script>
-      const sessionURL = 'http://localhost:8787'
+      const sessionURL = '/session'
 
       // Get and set new session cookie
       const setSessionCookie = async () => {
+        console.log("Setting new session cookies.")
         fetch(`${sessionURL}/new`)
         .then(res => {
-          if (res.status === 201){
-            return res.json()
-          }
-          else {
-            const { err } = res.json()
+          if (res.status === 201) {
+            console.log("Cookies set.")
+          } else {
+            console.log("Error setting session cookies.")
+            let { err } = res.json()
             throw new Error(err)
           }
         })
-        .then(session => {
-          let [ sessionId, sessionToken ] = session
-          document.cookie = `sessionId=${sessionId}; SameSite=Strict; max-age=3000`
-          document.cookie = `${sessionId}=${sessionToken}; SameSite=Strict; max-age=3000`
-        })
         .catch(err => console.log(err))
-      }
-
-      const deleteSessionCookie = (sessionId) => {
-        document.cookie = `sessionId=""; max-age=0`
-        document.cookie = `${sessionId}=""; max-age=0`
       }
 
       // Read session ID and valid from cookies
@@ -41,11 +34,10 @@
           let parts = e.split('=')
           obj[parts[0]] = parts[1]
         });
-        // console.log("Cookies: ", obj)
-        let sessionId = obj['sessionId'] || undefined
-        // console.log("Session ID: ", sessionId)
-        let sessionToken = obj[`${sessionId}`] || undefined
-        // console.log("Session Value: ", sessionToken)
+        let sessionId = obj['ssID'] || undefined
+        console.log("Session ID: ", sessionId)
+        let sessionToken = obj['ssTkn'] || undefined
+        console.log("Session Value: ", sessionToken)
         return [
           sessionId,
           sessionToken
@@ -53,27 +45,27 @@
       }
 
       const [sessionId, sessionToken] = readSessionCookies()
-
+      
       // Check session cookie/value is valid
       if (sessionId !== undefined && sessionToken !== undefined) {
-        fetch(`${sessionURL}/verify/${sessionId}/${sessionToken}`)
+        console.log("Verifying Cookie")
+        fetch(`${sessionURL}/verify`)
           .then(res => {
-            if (res.status !== 200) {
-              const { err } = res.json()
-              if (res.status === 401) {
-                deleteSessionCookie(sessionId)
-              }
-              throw new Error(err)
+            if (res.status === 200) {
+              console.log("Session cookies valid.")
+            } else if (res.status === 204) {
+              console.log("Session cookies not valid!")
+              setSessionCookie()
             } else {
-              console.log("Session valid")
-              return true
+              let { err } = res.json()
+              throw new Error(err)
             }
           })
           .catch(err => console.log(err))
       }
       // No cookie, to make one
       else {
-        // console.log("Setting session cookie")
+        console.log("No session cookies, setting...")
         setSessionCookie()
       }
 
